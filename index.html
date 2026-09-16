@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Songdo Cosmic-Ray Array Interactive</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="arcade.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">COSMIC-RAY DETECTION PIPELINE</div>
+      <h1>Songdo Cosmic-Ray Array → DRC → ML</h1>
+    </div>
+    <button id="homeBtn" class="ghost">처음으로</button>
+  </header>
+
+  <main>
+    <section id="landing" class="landing">
+      <div class="intro-card">
+        <div class="kicker">END-TO-END COSMIC-RAY PIPELINE</div>
+        <h2>Cosmic ray가 Array에서 검출되고, DRC 신호를 거쳐 ML로 Particle ID되는 과정을 확인하세요.</h2>
+        <p>1 / 10 PeV에서는 detector 내부 신호와 Particle ID 파이프라인을, 100 PeV / 10 EeV에서는 Songdo array의 고에너지 성능을 확인할 수 있습니다.</p>
+        <div class="pipeline-mini" aria-label="project pipeline">
+          <span>01 Array</span><b>→</b><span>02 DRC</span><b>→</b><span>03 ML / PID</span>
+        </div>
+        <div class="energy-grid">
+          <button class="energy-btn" data-energy="1PeV"><strong>1 PeV</strong><span>Array → DRC → ML → Particle ID</span></button>
+          <button class="energy-btn" data-energy="10PeV"><strong>10 PeV</strong><span>Array → DRC → ML → Particle ID</span></button>
+          <button class="energy-btn high" data-energy="100PeV"><strong>100 PeV</strong><span>Array performance</span></button>
+          <button class="energy-btn high" data-energy="10EeV"><strong>10 EeV</strong><span>Array performance</span></button>
+        </div>
+      </div>
+      <div class="map-card">
+        <img src="assets/songdo_reference.png" alt="Songdo array reference map" />
+        <div class="map-caption">Reference: Songdo potential installation areas</div>
+      </div>
+    </section>
+
+    <section id="experience" class="experience hidden">
+      <div class="hud">
+        <div><span class="hud-label">PRIMARY ENERGY</span><strong id="energyLabel">1 PeV</strong></div>
+        <div><span class="hud-label">ARRAY</span><strong>Songdo / Square spacing layout</strong></div>
+        <div><span class="hud-label">STATUS</span><strong id="statusLabel">Ready</strong></div>
+      </div>
+      <div class="stage-wrap">
+        <canvas id="stage"></canvas>
+        <div id="hint" class="hint hidden">빛나는 detector를 클릭하여 내부 신호를 확인하세요</div>
+      </div>
+      <div class="timeline"><div id="progress" class="progress"></div></div>
+    </section>
+
+    <section id="detailPanel" class="detail-panel hidden">
+      <button id="closePanel" class="close-btn" aria-label="close">×</button>
+
+      <div id="particlePanel" class="panel-content hidden">
+        <div class="detail-head">
+          <div>
+            <div class="kicker">LOW-ENERGY EVENT PIPELINE</div>
+            <h2 id="particleTitle">Detector event — 1 PeV</h2>
+          </div>
+          <div class="stepper" aria-label="analysis pipeline">
+            <button class="step active" data-step="drc"><span>01</span>DRC</button>
+            <i>→</i>
+            <button class="step" data-step="features"><span>02</span>Feature maps</button>
+            <i>→</i>
+            <button class="step" data-step="ml"><span>03</span>U-Net</button>
+            <i>→</i>
+            <button class="step" data-step="pid"><span>04</span>Composition maps</button>
+          </div>
+        </div>
+
+        <div class="drc-layout">
+          <div class="drc-card">
+            <div class="card-label">DUAL-READOUT CALORIMETER · 3D EVENT VIEW</div>
+            <canvas id="drcCanvas" width="760" height="520" aria-label="3D-like DRC particle shower animation"></canvas>
+            <div class="drc-controls">
+              <button id="replayDRC" class="primary-btn">Replay event</button>
+              <button id="continueML" class="ghost small" disabled>Run U-Net</button>
+              <span id="drcStatus">Particle entering detector</span>
+            </div>
+          </div>
+
+          <div class="signal-column">
+            <div class="signal-card">
+              <div class="signal-title"><span>OPTICAL READOUT</span><small>Live photon signal</small></div>
+              <div class="legend"><span class="dot ch"></span>Cherenkov <span class="dot sc"></span>Scintillation</div>
+              <canvas id="signalCanvas" width="520" height="230"></canvas>
+              <div class="photon-counts">
+                <div><span>Cherenkov photons</span><strong id="cCount">0</strong></div>
+                <div><span>Scintillation photons</span><strong id="sCount">0</strong></div>
+              </div>
+            </div>
+            <div class="event-note">
+              <b>Event visualization</b>
+              <p>광점과 waveform은 실제 팀 데이터를 연결하기 전까지 파이프라인 설명을 위한 시각화입니다.</p>
+            </div>
+          </div>
+        </div>
+
+        <div id="mlSection" class="ml-section locked">
+          <div class="section-title simple-ml-title">
+            <div>
+              <div class="kicker">ML PARTICLE ID · SIMPLE VIEW</div>
+              <h3>U-Net은 섞여 있는 빛을 종류별로 나눠줍니다</h3>
+              <p class="ml-subtitle">검출기에서 들어온 복잡한 빛 → 중요한 특징 찾기 → 핵심 정보 저장 → 원래 위치로 복원 → EM / MU / HAD 성분 분해</p>
+            </div>
+            <span id="mlLock">DRC event를 먼저 재생하세요</span>
+          </div>
+
+          <div class="simple-unet" id="unetShell">
+            <div class="simple-flow">
+              <div class="simple-stage input-stage" data-stage="0">
+                <div class="stage-num">1</div>
+                <div class="stage-icon mixed-light" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                <strong>입력</strong>
+                <b>Detector photon map</b>
+                <small>검출기에서 측정한<br>섞여 있는 전체 빛</small>
+              </div>
+
+              <div class="simple-arrow">→</div>
+
+              <div class="simple-stage encoder-stage" data-stage="1">
+                <div class="stage-num">2</div>
+                <div class="shrink-stack" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+                <strong>Encoder</strong>
+                <b>중요한 특징 찾기</b>
+                <small>그림을 점점 작게 보며<br>빛의 패턴을 찾습니다</small>
+              </div>
+
+              <div class="simple-arrow">→</div>
+
+              <div class="simple-stage bottleneck-stage" data-stage="2">
+                <div class="stage-num">3</div>
+                <div class="core-cube" aria-hidden="true">★</div>
+                <strong>Bottleneck</strong>
+                <b>핵심 정보 저장</b>
+                <small>가장 중요한 특징만<br>작게 모아둡니다</small>
+              </div>
+
+              <div class="simple-arrow">→</div>
+
+              <div class="simple-stage decoder-stage" data-stage="3">
+                <div class="stage-num">4</div>
+                <div class="grow-stack" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+                <strong>Decoder</strong>
+                <b>다시 크게 그리기</b>
+                <small>저장한 특징을 이용해<br>원래 위치를 복원합니다</small>
+                <div class="skip-note">↗ Skip connection으로 위치 정보 전달</div>
+              </div>
+
+              <div class="simple-arrow">→</div>
+
+              <div class="simple-stage output-stage" data-stage="4">
+                <div class="stage-num">5</div>
+                <div class="three-maps">
+                  <i class="em">EM</i><i class="mu">MU</i><i class="had">HAD</i>
+                </div>
+                <strong>출력</strong>
+                <b>빛을 3종류로 분해</b>
+                <small>각 픽셀에서 어떤 성분의 빛이<br>얼마나 섞였는지 계산합니다</small>
+              </div>
+            </div>
+
+            <div class="fraction-panel" data-stage="5">
+              <div class="fraction-intro">
+                <span>각 픽셀의 세 비율의 합은 항상</span>
+                <strong>EM + MU + HAD = 100%</strong>
+              </div>
+              <div class="fraction-bars">
+                <div class="fraction-item em"><span>EM</span><div><i id="barEM"></i></div><b id="fEM">—</b></div>
+                <div class="fraction-item mu"><span>MU</span><div><i id="barMU"></i></div><b id="fMU">—</b></div>
+                <div class="fraction-item had"><span>HAD</span><div><i id="barHAD"></i></div><b id="fHAD">—</b></div>
+              </div>
+            </div>
+
+            <div class="pid-result" data-stage="6">
+              <div class="pid-badge">Particle ID</div>
+              <div>
+                <strong>분해된 빛의 모양과 비율을 비교해 입자 종류를 구별합니다</strong>
+                <small>즉, U-Net은 “섞여 있는 빛 속에서 누가 얼마나 들어있는지” 찾아주는 단계입니다.</small>
+              </div>
+            </div>
+
+            <div class="unet-progress"><i id="unetProgress"></i></div>
+            <div class="unet-status-row"><strong id="modelStatus">Waiting for detector photon map</strong><span id="compositionStatus">Composition not calculated</span></div>
+          </div>
+
+          <div class="composition-summary simple-summary">
+            <div><span>Measured total photons</span><strong id="featTotal">—</strong></div>
+            <div><span>EM fraction</span><strong id="summaryEM">—</strong></div>
+            <div><span>MU fraction</span><strong id="summaryMU">—</strong></div>
+            <div><span>HAD fraction</span><strong id="summaryHAD">—</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="performancePanel" class="panel-content hidden">
+        <div class="kicker">HIGH-ENERGY ARRAY PERFORMANCE</div>
+        <h2 id="performanceTitle">Array performance — 100 PeV</h2>
+        <p class="panel-sub">고에너지에서는 Particle ID 대신 제안한 array의 검출 성능과 reconstruction 성능을 평가합니다.</p>
+        <div class="graph-grid">
+          <button class="graph-placeholder" data-graph="efficiency"><span>01</span><strong>Trigger efficiency</strong><small>Graph to be added</small></button>
+          <button class="graph-placeholder" data-graph="core"><span>02</span><strong>Core reconstruction</strong><small>Graph to be added</small></button>
+          <button class="graph-placeholder" data-graph="energy"><span>03</span><strong>Energy reconstruction</strong><small>Graph to be added</small></button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
