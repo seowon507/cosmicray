@@ -123,6 +123,9 @@ import { gsap } from 'gsap';
     };
   }
 
+  // scene sits high enough that the ground plane clears the hint banner at the canvas bottom
+  const GROUND_Y = .66, DEPTH_SCALE = .48, HORIZON_Y = GROUND_Y - .19;
+
   const SHOWER_ORIGIN_X = -.06, SHOWER_Z_TOP = .62, SHOWER_Z_GROUND = .02, SHOWER_U_END = .72;
   const SHOWER_SPREAD_SCALE = 1.45;
   const SPECIES_CORE = { EM:'#a8cdff', MU:'#ffc48c', HAD:'#96e8b8' };
@@ -141,9 +144,9 @@ import { gsap } from 'gsap';
 
   function project(x,y,z){
     const w = canvas.clientWidth, h = canvas.clientHeight;
-    const groundY = h*.78;
+    const groundY = h*GROUND_Y;
     const perspective = 1 - y*.22;
-    return {x:w*.5 + x*w*.39*perspective,y:groundY - z*h*.56 + y*h*.18,s:perspective};
+    return {x:w*.5 + x*w*.39*perspective,y:groundY - z*h*DEPTH_SCALE + y*h*.18,s:perspective};
   }
 
   function pointInPoly(x,y){
@@ -163,17 +166,18 @@ import { gsap } from 'gsap';
     ctx.fillStyle=g;ctx.fillRect(0,0,w,h);
     ctx.fillStyle='rgba(255,255,255,.55)';
     for(let i=0;i<70;i++){
-      const x=(i*97)%w, y=((i*61)%Math.max(120,h*.48)); const r=(i%4===0)?1.2:.6;
+      const x=(i*97)%w, y=((i*61)%Math.max(120,h*HORIZON_Y)); const r=(i%4===0)?1.2:.6;
       ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
     }
   }
 
   function drawGround(){
     const w=canvas.clientWidth,h=canvas.clientHeight;
-    ctx.fillStyle='rgba(3,24,36,.86)';ctx.beginPath();ctx.moveTo(0,h*.59);ctx.lineTo(w,h*.59);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fill();
+    const horizon=h*HORIZON_Y;
+    ctx.fillStyle='rgba(3,24,36,.86)';ctx.beginPath();ctx.moveTo(0,horizon);ctx.lineTo(w,horizon);ctx.lineTo(w,h);ctx.lineTo(0,h);ctx.closePath();ctx.fill();
     const poly=SONGDO_POLY.map(([x,y])=>project(x,y,0));
     ctx.beginPath(); poly.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y)); ctx.closePath();
-    const grd=ctx.createLinearGradient(0,h*.55,0,h*.95); grd.addColorStop(0,'#173a31');grd.addColorStop(1,'#10251f');
+    const grd=ctx.createLinearGradient(0,h*(GROUND_Y-.23),0,h*(GROUND_Y+.17)); grd.addColorStop(0,'#173a31');grd.addColorStop(1,'#10251f');
     ctx.fillStyle=grd;ctx.fill(); ctx.strokeStyle='rgba(118,231,255,.45)';ctx.lineWidth=2;ctx.stroke();
     ctx.save();ctx.clip();
     DISTRICT_CENTERS.forEach((d,idx)=>{
