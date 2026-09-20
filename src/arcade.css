@@ -88,6 +88,7 @@ body .topbar:before{content:"";position:fixed;inset:0;pointer-events:none;z-inde
 .stage-wrap:after{content:"SONGDO FIELD / ACTIVE";position:absolute;right:15px;top:14px;color:#8ee7ea;background:#0a1022;border:2px solid #3a5674;padding:5px 8px;font-size:9px;letter-spacing:.12em}
 .hint{
   left:50%!important;transform:translateX(-50%)!important;
+  width:max-content;max-width:calc(100% - 28px);text-align:center;
   border-radius:8px!important;background:#f7efd9!important;color:#151826!important;border:4px solid #151826!important;
   box-shadow:inset 0 0 0 2px #b8aa88,6px 6px 0 rgba(0,0,0,.65)!important;
   padding:14px 24px!important;font-weight:900!important;text-transform:uppercase;letter-spacing:.05em;
@@ -113,8 +114,8 @@ body .topbar:before{content:"";position:fixed;inset:0;pointer-events:none;z-inde
 .panel-content{padding-top:7px}
 .panel-content h2{font-size:30px!important;color:#fff3c5!important;text-shadow:2px 2px 0 #05060a!important}
 .panel-sub{color:#b8c2dd!important}
-.detail-head{padding-right:52px!important;margin-bottom:30px!important}
-.stepper{gap:7px!important}
+.detail-head{padding-right:52px!important;margin-bottom:30px!important;flex-wrap:wrap!important;gap:18px}
+.stepper{gap:7px!important;flex-wrap:wrap!important}
 .step{background:#22283d!important;border:2px solid #4f5b80!important;color:#bfc7dc!important;padding:8px 10px!important;cursor:pointer;transition:all .1s}
 .step:hover{filter:brightness(1.2)}
 .step span{color:#7edee8!important}
@@ -281,4 +282,37 @@ body .topbar:before{content:"";position:fixed;inset:0;pointer-events:none;z-inde
 }
 @media(max-width:650px){
   .topbar{padding:12px 13px!important}.landing{padding:12px!important}.intro-card{padding:27px 22px!important}.intro-card:before{display:none}.detail-panel{padding:25px 13px!important}.energy-btn span{margin-left:22px!important}
+}
+
+/* ── narrow screens: stack rows that are side-by-side on desktop ── */
+@media(max-width:860px){
+  /* title and step buttons collided and ran off-screen */
+  .detail-head{flex-direction:column!important;align-items:stretch!important;padding-right:0!important;gap:14px}
+  .panel-content h2{font-size:23px!important}
+  .stepper{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px!important;width:100%}
+  .step{padding:9px 6px!important;font-size:10.5px!important;line-height:1.35;text-align:center}
+  .step span{display:block;margin-bottom:2px}
+
+  /* explanation text was wedged into a narrow column beside the badge */
+  .pid-result{flex-direction:column;gap:9px}
+  .pid-badge{align-self:flex-start}
+
+  /* HUD readouts were squeezed to 2-3 words per line */
+  .hud{flex-direction:column!important;align-items:stretch!important;gap:8px!important;padding:12px!important}
+  .hud>div.flex{gap:12px!important}
+  .hud .text-right{text-align:left!important}
+}
+@media(max-width:650px){
+  /* nested card padding ate ~125px of a 375px screen */
+  .ml-section{padding:18px 13px!important}
+  .simple-unet{padding:18px 12px 16px!important}
+  .fraction-panel{padding:14px 12px!important}
+  .pid-result{padding:13px 13px!important}
+  .photon-map-card{padding:16px 13px!important}
+  .experience{padding:12px 12px 18px!important}
+
+  /* wrapper was taller than the canvas, leaving the hint stranded below it */
+  .stage-wrap{min-height:0!important}
+  .hint{padding:10px 14px!important;font-size:12px;letter-spacing:.02em;bottom:14px!important}
+  .hint:before{font-size:8px;margin-bottom:3px}
 }
