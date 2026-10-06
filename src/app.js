@@ -85,8 +85,8 @@ import { gsap } from 'gsap';
   const ENERGY = {
     '1PeV':   {label:'1 PeV', shower:60, spread:.24, footprint:.16, color:'#72e7ff', mode:'particle'},
     '10PeV':  {label:'10 PeV', shower:100, spread:.34, footprint:.23, color:'#73a7ff', mode:'particle'},
-    'Songdo': {label:'Songdo',shower:150,spread:.44, footprint:.31, color:'#a989ff', mode:'performance'},
-    'South Korea':  {label:'South Korea', shower:220,spread:.57, footprint:.40, color:'#ffb86a', mode:'performance'}
+    '100PeV': {label:'100PeV',shower:150,spread:.44, footprint:.31, color:'#a989ff', mode:'performance'},
+    '10EeV':  {label:'10EeV', shower:220,spread:.57, footprint:.40, color:'#ffb86a', mode:'performance'}
   };
 
   // Placeholder distributions — replace mean/std with the measured values.
